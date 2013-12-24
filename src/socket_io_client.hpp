@@ -32,6 +32,9 @@
 
 #define JSON_BUFFER_SIZE 20000
 
+// Qt's keyword
+#undef emit
+
 using websocketpp::client;
 using namespace rapidjson;
 
