@@ -32,9 +32,6 @@
 
 #define JSON_BUFFER_SIZE 20000
 
-// Qt's keyword
-#undef emit
-
 using websocketpp::client;
 using namespace rapidjson;
 
@@ -102,8 +99,8 @@ public:
    void disconnect_endpoint(std::string endpoint);
 
    // Emulates the emit function from socketIO (type 5) 
-   void emit(std::string name, Document& args, std::string endpoint = "", unsigned int id = 0);
-   void emit(std::string name, std::string arg0, std::string endpoint = "", unsigned int id = 0);
+   void emit_function(std::string name, Document& args, std::string endpoint = "", unsigned int id = 0);
+   void emit_function(std::string name, std::string arg0, std::string endpoint = "", unsigned int id = 0);
 
    // Sends a plain message (type 3)
    void message(std::string msg, std::string endpoint = "", unsigned int id = 0);

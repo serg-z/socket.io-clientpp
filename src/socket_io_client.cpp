@@ -10,7 +10,7 @@
 #include "socket_io_client.hpp"
 
 // Comment this out to disable handshake logging to stdout
-#define LOG(x) std::cout << x
+#define LOG(x) std::cout << "socket.io: " << x
 //#define LOG(x)
 
 using socketio::socketio_client_handler;
@@ -95,7 +95,7 @@ std::string socketio_client_handler::perform_handshake(std::string url, std::str
    boost::asio::streambuf request;
    std::ostream reqstream(&request);
 
-   reqstream << "POST " << socketIoResource << "/1/ HTTP/1.0\r\n";
+   reqstream << "POST " << socketIoResource << "/1/ HTTP/1.1\r\n";
    reqstream << "Host: " << uo.get_host() << "\r\n";
    reqstream << "Accept: */*\r\n";
    reqstream << "Connection: close\r\n\r\n";
@@ -104,6 +104,24 @@ std::string socketio_client_handler::perform_handshake(std::string url, std::str
 
    // Write request.
    boost::asio::write(socket, request);
+
+   unsigned long long count = 0;
+   std::size_t prevAvailable = 0;
+
+   // waiting for data
+   while (1)
+   {
+       ++count;
+
+       if (prevAvailable && socket.available() == prevAvailable)
+       {
+           break;
+       }
+
+       prevAvailable = socket.available();
+
+       Sleep(100);
+   }
 
    // Receive response
    boost::asio::streambuf response;
@@ -133,7 +151,7 @@ std::string socketio_client_handler::perform_handshake(std::string url, std::str
 
    while (std::getline(resp_stream, header) && header[0] != '\r')
    {
-      LOG(header << std::endl);
+      LOG(header);
    }
 
    // Handle errors
@@ -160,6 +178,9 @@ std::string socketio_client_handler::perform_handshake(std::string url, std::str
 
    // Get the body components.
    std::string body;
+
+   // skipping \r\n
+   std::getline(resp_stream, body);
 
    std::getline(resp_stream, body, '\0');
    boost::cmatch matches;
@@ -230,7 +251,7 @@ void socketio_client_handler::disconnect_endpoint(std::string endpoint)
     send("0::" + endpoint);
 }
 
-void socketio_client_handler::emit(std::string name, Document& args, std::string endpoint, unsigned int id)
+void socketio_client_handler::emit_function(std::string name, Document& args, std::string endpoint, unsigned int id)
 {
    // Add the name to the data being sent.
    Value n;
@@ -247,7 +268,7 @@ void socketio_client_handler::emit(std::string name, Document& args, std::string
    send(5, endpoint, package.substr(0, package.find('\0')), id);
 }
 
-void socketio_client_handler::emit(std::string name, std::string arg0, std::string endpoint, unsigned int id) {
+void socketio_client_handler::emit_function(std::string name, std::string arg0, std::string endpoint, unsigned int id) {
    Document d;
    d.SetObject();
    Value args;
@@ -255,7 +276,7 @@ void socketio_client_handler::emit(std::string name, std::string arg0, std::stri
    args.PushBack(arg0.c_str(), d.GetAllocator());
    d.AddMember("args", args, d.GetAllocator());
     
-   emit(name, d, endpoint, id);
+   emit_function(name, d, endpoint, id);
 }
 
 void socketio_client_handler::message(std::string msg, std::string endpoint, unsigned int id)
