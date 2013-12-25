@@ -23,7 +23,9 @@ void socketio_events::example(const Value& args)
 {
    // Event handlers are responsible for knowing what's in args.
    // This function expects a string as the first argument, and doesn't care about the rest.
-   std::cout << "Hello! You've just successfully tested this event. Args[0]: " << args[SizeType(0)].GetString() << std::endl;
+   std::cout << "Hello! You've just successfully tested this event." << std::endl;
+   std::cout << "   Args: " << args.Size() << std::endl;
+   std::cout << "   Args[0]: " << args[SizeType(0)].GetString() << std::endl;
 }
 
 
