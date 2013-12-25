@@ -259,12 +259,12 @@ void socketio_client_handler::emit_function(std::string name, Document& args, st
    args.AddMember("name", n, args.GetAllocator());
 
    // Stringify json
-   std::ostringstream outStream;
-   StreamWriter<std::ostringstream> writer(outStream);
+   StringBuffer buffer;
+   Writer<StringBuffer> writer(buffer);
    args.Accept(writer);
 
    // Extract the message from the stream and format it.
-   std::string package(outStream.str());
+   std::string package(buffer.GetString());
    send(5, endpoint, package.substr(0, package.find('\0')), id);
 }
 
@@ -287,12 +287,12 @@ void socketio_client_handler::message(std::string msg, std::string endpoint, uns
 void socketio_client_handler::json_message(Document& json, std::string endpoint, unsigned int id)
 {
    // Stringify json
-   std::ostringstream outStream;
-   StreamWriter<std::ostringstream> writer(outStream);
+   StringBuffer buffer;
+   Writer<StringBuffer> writer(buffer);
    json.Accept(writer);
 
    // Extract the message from the stream and format it.
-   std::string package(outStream.str());
+   std::string package(buffer.GetString());
    send(4, endpoint, package.substr(0, package.find('\0')), id);
 }
 
