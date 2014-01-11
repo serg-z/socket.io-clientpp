@@ -31,6 +31,17 @@
 #include <string>
 #include <queue>
 
+#include <QtGlobal>
+
+// Comment this out to disable handshake logging to stdout
+#ifdef QT_DEBUG
+#define LOG(x) std::cout << "socket.io: " << x
+#define LOG_ERROR(x) std::cerr << "socket.io: " << x
+#else
+#define LOG(x)
+#define LOG_ERROR(x)
+#endif
+
 #define JSON_BUFFER_SIZE 20000
 
 using websocketpp::client;

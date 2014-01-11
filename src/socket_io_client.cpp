@@ -9,10 +9,6 @@
 
 #include "socket_io_client.hpp"
 
-// Comment this out to disable handshake logging to stdout
-#define LOG(x) std::cout << "socket.io: " << x
-//#define LOG(x)
-
 using socketio::socketio_client_handler;
 using socketio::socketio_events;
 using websocketpp::client;
@@ -223,7 +219,8 @@ void socketio_client_handler::send(const std::string &msg)
 {
    if (!m_con)
    {
-      std::cerr << "Error: No active session" << std::endl;
+      LOG_ERROR("Error: No active session" << std::endl);
+
       return;
    }
 
@@ -325,7 +322,8 @@ void socketio_client_handler::close()
 {
    if (!m_con)
    {
-      std::cerr << "Error: No active session" << std::endl;
+      LOG_ERROR("Error: No active session" << std::endl);
+
       return;
    }
 
