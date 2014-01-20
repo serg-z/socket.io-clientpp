@@ -67,7 +67,7 @@ public:
       m_connected(false)
    { }
 
-   ~socketio_client_handler() {
+   virtual ~socketio_client_handler() {
       if (m_con)
          m_con->close(websocketpp::close::status::GOING_AWAY, "Client Initiated Disconnect");
    }
