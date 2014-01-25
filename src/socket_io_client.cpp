@@ -118,7 +118,11 @@ std::string socketio_client_handler::perform_handshake(std::string url, std::str
 
        prevAvailable = socket.available();
 
+#ifdef Q_OS_WIN
        Sleep(100);
+#else
+       usleep(100000);
+#endif
    }
 
    // Receive response
