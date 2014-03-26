@@ -46,11 +46,6 @@
 
 #define JSON_BUFFER_SIZE 20000
 
-using websocketpp::client;
-using namespace rapidjson;
-
-namespace socketio {
-
 // Class for event callbacks.
 // Class is automatically created  on the stack to handle calling the function when an event callback is triggered.
 // Class is broken out from the main handler class to allow for easier editing of functions
@@ -59,10 +54,10 @@ namespace socketio {
 class socketio_events
 {
 public:
-   void example(const Value& args);
+   void example(const rapidjson::Value& args);
 };
 
-class socketio_client_handler : public client::handler {
+class socketio_client_handler : public websocketpp::client::handler {
 public:
    socketio_client_handler() :
       m_heartbeatActive(false),
@@ -87,7 +82,7 @@ public:
    // Can change to whatever signature you want, just make sure to change the call in on_socketio_event too.
 #ifndef BOOST_NO_CXX11_HDR_FUNCTIONAL
    // If you're using C++11 and have the proper functional header in the standard lib, we'll use that
-   typedef std::function<void (socketio_events&, const Value&)> eventFunc;
+   typedef std::function<void (socketio_events&, const rapidjson::Value&)> eventFunc;
 #else
    // Otherwise we'll let boost fill in the gaps
    typedef boost::function<void (socketio_events&, const Value&)> eventFunc;
@@ -113,14 +108,14 @@ public:
    void disconnect_endpoint(std::string endpoint);
 
    // Emulates the emit function from socketIO (type 5) 
-   void emit_function(std::string name, Document& args, std::string endpoint = "", unsigned int id = 0);
+   void emit_function(std::string name, rapidjson::Document& args, std::string endpoint = "", unsigned int id = 0);
    void emit_function(std::string name, std::string arg0, std::string endpoint = "", unsigned int id = 0);
 
    // Sends a plain message (type 3)
    void message(std::string msg, std::string endpoint = "", unsigned int id = 0);
 
    // Sends a JSON message (type 4)
-   void json_message(Document& json, std::string endpoint = "", unsigned int id = 0);
+   void json_message(rapidjson::Document& json, std::string endpoint = "", unsigned int id = 0);
 
    // Binds a function to a name. Function will be passed a a Value ref as the only argument.
    // If the function already exists, this function returns false. You must call unbind_event
@@ -152,8 +147,8 @@ private:
 
    // Message Parsing callbacks.
    void on_socketio_message(int msgId, std::string msgEndpoint, std::string data);
-   void on_socketio_json(int msgId, std::string msgEndpoint, Document& json);
-   void on_socketio_event(int msgId, std::string msgEndpoint, std::string name, const Value& args);
+   void on_socketio_json(int msgId, std::string msgEndpoint, rapidjson::Document& json);
+   void on_socketio_event(int msgId, std::string msgEndpoint, std::string name, const rapidjson::Value& args);
    void on_socketio_ack(std::string data);
    void on_socketio_error(std::string endppoint, std::string reason, std::string advice);
 
@@ -187,7 +182,5 @@ private:
 };
 
 typedef boost::shared_ptr<socketio_client_handler> socketio_client_handler_ptr;
-
-}
 
 #endif // SOCKET_IO_CLIENT_HPP

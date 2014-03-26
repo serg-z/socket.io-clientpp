@@ -9,19 +9,15 @@
 
 #include "socket_io_client.hpp"
 
-using socketio::socketio_client_handler;
-using socketio::socketio_events;
-using websocketpp::client;
-
 // Event handlers
 
-void socketio_events::example(const Value& args)
+void socketio_events::example(const rapidjson::Value& args)
 {
    // Event handlers are responsible for knowing what's in args.
    // This function expects a string as the first argument, and doesn't care about the rest.
    std::cout << "Hello! You've just successfully tested this event." << std::endl;
    std::cout << "   Args: " << args.Size() << std::endl;
-   std::cout << "   Args[0]: " << args[SizeType(0)].GetString() << std::endl;
+   std::cout << "   Args[0]: " << args[rapidjson::SizeType(0)].GetString() << std::endl;
 }
 
 
@@ -254,16 +250,16 @@ void socketio_client_handler::disconnect_endpoint(std::string endpoint)
     send("0::" + endpoint);
 }
 
-void socketio_client_handler::emit_function(std::string name, Document& args, std::string endpoint, unsigned int id)
+void socketio_client_handler::emit_function(std::string name, rapidjson::Document& args, std::string endpoint, unsigned int id)
 {
    // Add the name to the data being sent.
-   Value n;
+   rapidjson::Value n;
    n.SetString(name.c_str(), name.length(), args.GetAllocator());
    args.AddMember("name", n, args.GetAllocator());
 
    // Stringify json
-   StringBuffer buffer;
-   Writer<StringBuffer> writer(buffer);
+   rapidjson::StringBuffer buffer;
+   rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
    args.Accept(writer);
 
    // Extract the message from the stream and format it.
@@ -272,9 +268,9 @@ void socketio_client_handler::emit_function(std::string name, Document& args, st
 }
 
 void socketio_client_handler::emit_function(std::string name, std::string arg0, std::string endpoint, unsigned int id) {
-   Document d;
+   rapidjson::Document d;
    d.SetObject();
-   Value args;
+   rapidjson::Value args;
    args.SetArray();
    args.PushBack(arg0.c_str(), d.GetAllocator());
    d.AddMember("args", args, d.GetAllocator());
@@ -287,11 +283,11 @@ void socketio_client_handler::message(std::string msg, std::string endpoint, uns
    send(3, endpoint, msg, id);
 }
 
-void socketio_client_handler::json_message(Document& json, std::string endpoint, unsigned int id)
+void socketio_client_handler::json_message(rapidjson::Document& json, std::string endpoint, unsigned int id)
 {
    // Stringify json
-   StringBuffer buffer;
-   Writer<StringBuffer> writer(buffer);
+   rapidjson::StringBuffer buffer;
+   rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
    json.Accept(writer);
 
    // Extract the message from the stream and format it.
@@ -393,7 +389,7 @@ void socketio_client_handler::parse_message(const std::string &msg)
    {
       int type;
       int msgId;
-      Document json;
+      rapidjson::Document json;
 
       // Attempt to parse the first match as an int.
       std::stringstream convert(matches[1]);
@@ -483,14 +479,14 @@ void socketio_client_handler::on_socketio_message(int msgId, std::string msgEndp
 }
 
 // This is where you'd add in behavior to handle json messages.
-void socketio_client_handler::on_socketio_json(int msgId, std::string msgEndpoint, Document& json)
+void socketio_client_handler::on_socketio_json(int msgId, std::string msgEndpoint, rapidjson::Document& json)
 {
    m_con->alog()->at(websocketpp::log::alevel::DEVEL) << "Received JSON Data (" << msgId << ")" << websocketpp::log::endl;
 }
 
 // This is where you'd add in behavior to handle events.
 // By default, nothing is done with the endpoint or ID params.
-void socketio_client_handler::on_socketio_event(int msgId, std::string msgEndpoint, std::string name, const Value& args)
+void socketio_client_handler::on_socketio_event(int msgId, std::string msgEndpoint, std::string name, const rapidjson::Value& args)
 {
    m_con->alog()->at(websocketpp::log::alevel::DEVEL) << "Received event (" << msgId << ") " << websocketpp::log::endl;
 
