@@ -166,11 +166,11 @@ std::string socketio_client_handler::perform_handshake(std::string url, std::str
    case(401):
    case(503):
       std::cerr << "Server rejected client connection" << std::endl;
-      throw websocketpp::exception("Socket.IO Handshake: Server rejected connection with code " + status, websocketpp::error::GENERIC);
+      throw websocketpp::exception("Socket.IO Handshake: Server rejected connection with code " + std::to_string(status), websocketpp::error::GENERIC);
       break;
    default:
       std::cerr << "Server returned unknown status code: " << status << std::endl;
-      throw websocketpp::exception("Socket.IO Handshake: Server responded with unknown code " + status, websocketpp::error::GENERIC);
+      throw websocketpp::exception("Socket.IO Handshake: Server responded with unknown code " + std::to_string(status), websocketpp::error::GENERIC);
       break;
    }
 
