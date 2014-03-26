@@ -64,16 +64,52 @@ public:
       m_heartbeatActive(false)
    { }
 
-   virtual ~socketio_client_handler() {
+   virtual ~socketio_client_handler()
+   {
       if (m_con)
          m_con->close(websocketpp::close::status::GOING_AWAY, "Client Initiated Disconnect");
    }
 
-   // Callbacks
-   void on_fail(connection_ptr con);
-   void on_open(connection_ptr con);
-   void on_close(connection_ptr con);
-   void on_message(connection_ptr con, message_ptr msg);
+   // Callbacks (Websocket++ client handler)
+
+   virtual void on_fail(connection_ptr /*con*/)
+   {
+       stop_heartbeat();
+       m_con = connection_ptr();
+       m_connected = false;
+
+       LOG("Connection failed." << std::endl);
+   }
+
+   virtual void on_open(connection_ptr con)
+   {
+       m_con = con;
+       // Create the heartbeat timer and use the same io_service as the main event loop.
+#ifndef BOOST_NO_CXX11_SMART_PTR
+       m_heartbeatTimer = std::unique_ptr<boost::asio::deadline_timer>(new boost::asio::deadline_timer(con->get_io_service(), boost::posix_time::seconds(0)));
+#else
+       m_heartbeatTimer = boost::shared_ptr<boost::asio::deadline_timer>(new boost::asio::deadline_timer(con->get_io_service(), boost::posix_time::seconds(0)));
+#endif
+       start_heartbeat();
+       m_connected = true;
+
+       LOG("Connected." << std::endl);
+   }
+
+   virtual void on_close(connection_ptr /*con*/)
+   {
+       stop_heartbeat();
+       m_connected = false;
+       m_con = connection_ptr();
+
+       LOG("Client Disconnected." << std::endl);
+   }
+
+   virtual void on_message(connection_ptr /*con*/, message_ptr msg)
+   {
+       // Parse the incoming message according to socket.IO rules
+       parse_message(msg->get_payload());
+   }
 
    // Client Functions - such as send, etc.
 
