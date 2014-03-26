@@ -60,8 +60,8 @@ public:
 class socketio_client_handler : public websocketpp::client::handler {
 public:
    socketio_client_handler() :
-      m_heartbeatActive(false),
-      m_connected(false)
+      m_connected(false),
+      m_heartbeatActive(false)
    { }
 
    virtual ~socketio_client_handler() {

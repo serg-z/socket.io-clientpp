@@ -23,7 +23,7 @@ void socketio_events::example(const rapidjson::Value& args)
 
 // Websocket++ client handler
 
-void socketio_client_handler::on_fail(connection_ptr con)
+void socketio_client_handler::on_fail(connection_ptr /*con*/)
 {
    stop_heartbeat();
    m_con = connection_ptr();
@@ -47,7 +47,7 @@ void socketio_client_handler::on_open(connection_ptr con)
    LOG("Connected." << std::endl);
 }
 
-void socketio_client_handler::on_close(connection_ptr con)
+void socketio_client_handler::on_close(connection_ptr /*con*/)
 {  
    stop_heartbeat();
    m_connected = false;
@@ -56,7 +56,7 @@ void socketio_client_handler::on_close(connection_ptr con)
    LOG("Client Disconnected." << std::endl);
 }
 
-void socketio_client_handler::on_message(connection_ptr con, message_ptr msg)
+void socketio_client_handler::on_message(connection_ptr /*con*/, message_ptr msg)
 {
    // Parse the incoming message according to socket.IO rules
    parse_message(msg->get_payload());
@@ -473,20 +473,20 @@ void socketio_client_handler::parse_message(const std::string &msg)
 }
 
 // This is where you'd add in behavior to handle the message data for your own app.
-void socketio_client_handler::on_socketio_message(int msgId, std::string msgEndpoint, std::string data)
+void socketio_client_handler::on_socketio_message(int msgId, std::string /*msgEndpoint*/, std::string data)
 {
    m_con->alog()->at(websocketpp::log::alevel::DEVEL) << "Received message (" << msgId << ") " << data << websocketpp::log::endl;
 }
 
 // This is where you'd add in behavior to handle json messages.
-void socketio_client_handler::on_socketio_json(int msgId, std::string msgEndpoint, rapidjson::Document& json)
+void socketio_client_handler::on_socketio_json(int msgId, std::string /*msgEndpoint*/, rapidjson::Document& /*json*/)
 {
    m_con->alog()->at(websocketpp::log::alevel::DEVEL) << "Received JSON Data (" << msgId << ")" << websocketpp::log::endl;
 }
 
 // This is where you'd add in behavior to handle events.
 // By default, nothing is done with the endpoint or ID params.
-void socketio_client_handler::on_socketio_event(int msgId, std::string msgEndpoint, std::string name, const rapidjson::Value& args)
+void socketio_client_handler::on_socketio_event(int msgId, std::string /*msgEndpoint*/, std::string name, const rapidjson::Value& args)
 {
    m_con->alog()->at(websocketpp::log::alevel::DEVEL) << "Received event (" << msgId << ") " << websocketpp::log::endl;
 
@@ -505,7 +505,7 @@ void socketio_client_handler::on_socketio_ack(std::string data)
 }
 
 // This is where you'd add in behavior to handle errors
-void socketio_client_handler::on_socketio_error(std::string endpoint, std::string reason, std::string advice)
+void socketio_client_handler::on_socketio_error(std::string /*endpoint*/, std::string reason, std::string advice)
 {
    m_con->alog()->at(websocketpp::log::elevel::RERROR) << "Received Error: " << reason << " Advice: " << advice << websocketpp::log::endl;
 }
